@@ -1,0 +1,13 @@
+[project]
+name = "amtk-skill"
+version = "0.1.0"
+description = "AMtkSkill — A-share market data skills for OpenClaw: fetch, query, and analyze with Tushare"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "openpyxl>=3.1.5",
+    "pandas>=2.2.3",
+    "pyarrow>=16.1.0",
+    "python-dotenv>=1.0.1",
+    "tushare>=1.4.24",
+]
