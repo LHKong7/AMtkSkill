@@ -1,6 +1,6 @@
 # AMtkSkill
 
-OpenClaw skills for fetching, querying, and analyzing Chinese A-share market data via Tushare. Users only need a `TUSHARE_TOKEN` to get started.
+OpenClaw skill for fetching, querying, and analyzing Chinese A-share market data via Tushare. Users only need a [`TUSHARE_TOKEN`](https://tushare.pro/) to get started.
 
 ## Install from ClawHub
 
@@ -8,24 +8,23 @@ OpenClaw skills for fetching, querying, and analyzing Chinese A-share market dat
 openclaw skills install amtk-skill
 ```
 
-Or install with the ClawHub CLI:
+Or with the ClawHub CLI:
 
 ```bash
 clawhub install amtk-skill
 ```
 
-After installing, start a new OpenClaw session so it picks up the skills.
+After installing, start a new OpenClaw session so it picks up the skill.
 
 ## Manual Install
 
 Clone the repo into your OpenClaw workspace `skills/` directory:
 
 ```bash
-cd your-workspace
 git clone <repo-url> skills/amtk-skill
 ```
 
-Or copy the three skill folders (`run-pipeline`, `query-data`, `analyze-data`) into your workspace `skills/` directory.
+Or copy the `skills/amtk-skill/` folder into your workspace `skills/` directory.
 
 ## Setup
 
@@ -43,96 +42,76 @@ TUSHARE_TOKEN=your_token_here
 
 Get your token from [tushare.pro](https://tushare.pro/).
 
-## Skills
+## Usage
 
-### `/run-pipeline` — Fetch Data
+All interaction is through a single skill `/amtk-skill`:
 
-Fetches A-share market data from Tushare and stores as local Parquet/CSV files.
-
-```
-/run-pipeline init              # First-time: fetch stock list + all market data
-/run-pipeline daily 20260420    # Daily incremental update
-/run-pipeline resume            # Resume interrupted fetch
-/run-pipeline stock-list        # Fetch stock list only
-```
-
-**What it fetches:**
-- OHLCV daily quotes (open, high, low, close, volume, amount, vwap)
-- Valuation metrics (PE, PB, market cap, turnover rate)
-- Adjustment factors (for split/dividend adjusted prices)
-
-### `/query-data` — Query Data
-
-Queries local Parquet/CSV data. No database required.
+### Fetch Data
 
 ```
-/query-data data overview
-/query-data 000001.SZ recent quotes
-/query-data banking sector stocks
-/query-data top 10 gainers
-/query-data lowest PE stocks
-/query-data market cap top 10
+/amtk-skill fetch init              # First-time: fetch stock list + all market data
+/amtk-skill fetch daily 20260420    # Daily incremental update
+/amtk-skill fetch resume            # Resume interrupted fetch
+/amtk-skill fetch stock-list        # Fetch stock list only
 ```
 
-### `/analyze-data` — Technical Analysis
-
-Runs technical analysis on local data.
+### Query Data
 
 ```
-/analyze-data 000001.SZ moving averages
-/analyze-data 000001.SZ RSI
-/analyze-data 000001.SZ MACD
-/analyze-data 000001.SZ Bollinger Bands
-/analyze-data 000001.SZ adjusted prices
-/analyze-data 000001.SZ return statistics
-/analyze-data 000001.SZ detect dividends/splits
+/amtk-skill query data overview
+/amtk-skill query 000001.SZ recent quotes
+/amtk-skill query banking sector stocks
+/amtk-skill query top 10 gainers
+/amtk-skill query lowest PE stocks
+```
+
+### Technical Analysis
+
+```
+/amtk-skill analyze 000001.SZ moving averages
+/amtk-skill analyze 000001.SZ RSI
+/amtk-skill analyze 000001.SZ MACD
+/amtk-skill analyze 000001.SZ Bollinger Bands
+/amtk-skill analyze 000001.SZ return statistics
 ```
 
 ## Publish to ClawHub
 
-### First-time publish
+### 1. Install the ClawHub CLI
 
 ```bash
-# Login to ClawHub
+npm i -g clawhub
+```
+
+### 2. Login
+
+```bash
 clawhub login
+```
 
-# Publish each skill
-clawhub skill publish ./skills/run-pipeline \
-  --slug amtk-run-pipeline \
-  --name "AMtkSkill: Run Pipeline" \
-  --version 0.1.0 \
-  --tags latest
+### 3. Publish
 
-clawhub skill publish ./skills/query-data \
-  --slug amtk-query-data \
-  --name "AMtkSkill: Query Data" \
-  --version 0.1.0 \
-  --tags latest
-
-clawhub skill publish ./skills/analyze-data \
-  --slug amtk-analyze-data \
-  --name "AMtkSkill: Analyze Data" \
+```bash
+clawhub skill publish ./skills/amtk-skill \
+  --slug amtk-skill \
+  --name "AMtkSkill" \
   --version 0.1.0 \
   --tags latest
 ```
 
-### Publish updates
+### 4. Publish updates
 
 ```bash
-# Bump version and publish
-clawhub skill publish ./skills/run-pipeline \
-  --slug amtk-run-pipeline \
+clawhub skill publish ./skills/amtk-skill \
+  --slug amtk-skill \
   --version 0.2.0 \
   --changelog "Added new feature X"
-
-# Or sync all skills at once
-clawhub sync --all
 ```
 
-### Dry-run (preview without uploading)
+### 5. Verify
 
 ```bash
-clawhub sync --dry-run
+clawhub search "amtk"
 ```
 
 ## Data Layout
@@ -144,11 +123,9 @@ data/quant_data/raw/
 └── adj_factor/{ts_code}/{year}_adj_factor.{parquet,csv}
 ```
 
-All datasets are written as both Parquet and CSV, partitioned by stock code and year.
-
 ## Python API
 
-Skills call these modules internally. You can also use them directly via `uv run python -c "..."`:
+The skill calls these modules internally via `uv run python -c "..."`:
 
 ```python
 # Fetch
